@@ -5,10 +5,8 @@ st.title("ئامادەیی ڕەنگینی کچان")
 st.subheader("Engage, Learn, and Explore Physics")
 
 # Sidebar Navigation
-st.sidebar.tit"بەشەکان")
+st.sidebar.title("بەشەکان")
 menu = st.sidebar.radio("Go to:", ["Home", "Lessons", "Simulations", "Videos", "Gallery", "Resources"])
-
-# Home Section
 if menu == "Home":
     st.header("ئامادەیی ئیشقی کوڕان)
     st.write("""
