@@ -1,5 +1,1 @@
-streamlit
-matplotlib
-numpy
-pygame
-PyOpenGL
+
