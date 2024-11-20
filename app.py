@@ -5,12 +5,12 @@ st.title("ئامادەیی ڕەنگینی کچان")
 st.subheader("Engage, Learn, and Explore Physics")
 
 # Sidebar Navigation
-st.sidebar.title("Navigation")
+st.sidebar.titبەشەکان")
 menu = st.sidebar.radio("Go to:", ["Home", "Lessons", "Simulations", "Videos", "Gallery", "Resources"])
 
 # Home Section
 if menu == "Home":
-    st.header("Welcome to the Physics Hub")
+    st.header("ئامادەیی ئیشقی کوڕان)
     st.write("""
     This platform is designed to help students access lessons, explore simulations, 
     watch videos, and collaborate effectively. Use the navigation bar to explore different sections.
