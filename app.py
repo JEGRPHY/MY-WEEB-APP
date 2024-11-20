@@ -1,57 +1,61 @@
 import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
+import math
 
-# Title
-st.title("🎉 Funny Bernoulli Principle Simulation 🎉")
-st.subheader("Learn fluid dynamics with a twist of fun!")
+# Function to calculate force or pressure based on Pascal's Principle
+def calculate_pressure(force, area):
+    return force / area
 
-# Explanation
-st.markdown(
-    """
-    According to the **Bernoulli Principle**, as the speed of a fluid increases, its pressure decreases. 
-    Let's see it in action with our *speedy rubber duck*!
-    """
-)
+def calculate_force(pressure, area):
+    return pressure * area
 
-# Interactive Inputs
-pipe_diameter = st.slider("📏 Adjust the pipe diameter (cm):", 1, 20, 10)
-fluid_speed = 100 / pipe_diameter  # Simplified relation for fun
-st.write(f"💨 Fluid speed: {fluid_speed:.2f} m/s (inversely proportional to pipe diameter)")
+# Funny object examples
+funny_examples = {
+    "Elephant on a platform": 5000,  # kg
+    "Basketball player dunking": 150,  # kg
+    "Cat sitting calmly": 4,  # kg
+    "Bag of feathers": 1,  # kg
+}
 
-# Visual Simulation
-fig, ax = plt.subplots(figsize=(8, 4))
-pipe_x = np.linspace(0, 10, 100)
-pipe_y = 5 + np.sin(pipe_x) * (20 - pipe_diameter) / 5
+# Streamlit app
+st.title("Pascal's Principle Simulation")
+st.subheader("Explore force and pressure with funny examples!")
 
-# Pipe
-ax.fill_between(pipe_x, pipe_y, 0, color="skyblue", alpha=0.6, label="Pipe")
-ax.plot(pipe_x, pipe_y, color="blue", lw=2)
+# User inputs for parameters
+col1, col2 = st.columns(2)
 
-# Rubber Duck (or other character)
-duck_x = np.linspace(0, 10, 10)
-duck_y = 5 + np.sin(duck_x) * (20 - pipe_diameter) / 5 + 0.5
-ax.scatter(duck_x, duck_y, color="yellow", s=100, label="Rubber Duck 🦆")
-ax.legend()
+with col1:
+    diameter1 = st.slider("Diameter of Small Piston (cm)", 1.0, 20.0, 5.0)
+    force1 = st.number_input("Applied Force on Small Piston (N)", 0.0, 1000.0, 100.0)
 
-# Styling
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 10)
-ax.axis("off")
-st.pyplot(fig)
+with col2:
+    diameter2 = st.slider("Diameter of Large Piston (cm)", 1.0, 50.0, 20.0)
 
-# Funny Comments
-if fluid_speed > 10:
-    st.success("🚀 The rubber duck is zooming through the pipe!")
-elif fluid_speed > 5:
-    st.info("🐥 The rubber duck is having a good swim.")
-else:
-    st.warning("🐌 The rubber duck is barely moving... Increase the speed!")
+# Calculate areas
+radius1 = diameter1 / 2
+radius2 = diameter2 / 2
+area1 = math.pi * radius1**2
+area2 = math.pi * radius2**2
 
-# End Note
-st.markdown(
-    """
-    **Fun Fact**: This principle is why airplanes fly and why your shower curtain attacks you 
-    when you take a hot shower! Cool, right? 😉
-    """
-)
+# Pascal's principle calculations
+pressure = calculate_pressure(force1, area1)
+force2 = calculate_force(pressure, area2)
+
+# Display results
+st.markdown(f"### Results")
+st.write(f"Pressure in the system: `{pressure:.2f} N/m²`")
+st.write(f"Force exerted by the large piston: `{force2:.2f} N`")
+
+# Funny examples
+st.markdown("### Funny Examples")
+st.write(f"If you apply `{force1:.2f} N`, here's what it equates to:")
+for item, weight in funny_examples.items():
+    force_equiv = weight * 9.8  # Convert kg to N (force)
+    if force1 >= force_equiv:
+        st.write(f"- It can lift: **{item}** (weight: ~{force_equiv:.2f} N)")
+    else:
+        st.write(f"- It **cannot** lift: **{item}** (weight: ~{force_equiv:.2f} N)")
+
+# Visualization
+st.markdown("### Visualize the Pistons")
+st.write("Use the sliders above to adjust the sizes and see the forces!")
+st.image("https://upload.wikimedia.org/wikipedia/commons/9/92/Pascal%27s_Law.png", caption="Pascal's Principle Illustration")
