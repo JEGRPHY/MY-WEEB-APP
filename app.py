@@ -1,7 +1,7 @@
 import streamlit as st
 
 # App Title
-st.title("High School Physics Hub")
+st.title("ئامادەیی ڕەنگینی کچان")
 st.subheader("Engage, Learn, and Explore Physics")
 
 # Sidebar Navigation
