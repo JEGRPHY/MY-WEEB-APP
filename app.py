@@ -1,57 +1,105 @@
-import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
+import pygame
+from pygame.locals import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
+import math
 
-# Title
-st.title("🎉 Funny Bernoulli Principle Simulation 🎉")
-st.subheader("Learn fluid dynamics with a twist of fun!")
+# Initialize Pygame
+pygame.init()
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height), DOUBLEBUF | OPENGL)
 
-# Explanation
-st.markdown(
-    """
-    According to the **Bernoulli Principle**, as the speed of a fluid increases, its pressure decreases. 
-    Let's see it in action with our *speedy rubber duck*!
-    """
-)
+# Set up perspective
+gluPerspective(45, (width / height), 0.1, 50.0)
+glTranslatef(0.0, 0.0, -10)
 
-# Interactive Inputs
-pipe_diameter = st.slider("📏 Adjust the pipe diameter (cm):", 1, 20, 10)
-fluid_speed = 100 / pipe_diameter  # Simplified relation for fun
-st.write(f"💨 Fluid speed: {fluid_speed:.2f} m/s (inversely proportional to pipe diameter)")
+# Plane properties
+plane_position = [0, 0, 0]
+plane_rotation = [0, 0, 0]  # [pitch, yaw, roll]
 
-# Visual Simulation
-fig, ax = plt.subplots(figsize=(8, 4))
-pipe_x = np.linspace(0, 10, 100)
-pipe_y = 5 + np.sin(pipe_x) * (20 - pipe_diameter) / 5
+def draw_plane():
+    """Draw a simple plane."""
+    glBegin(GL_TRIANGLES)
+    glColor3f(1, 0, 0)  # Red
+    glVertex3f(0, 1, 0)  # Nose
+    glColor3f(0, 1, 0)  # Green
+    glVertex3f(-0.5, -1, 0.5)  # Left wing
+    glColor3f(0, 0, 1)  # Blue
+    glVertex3f(0.5, -1, 0.5)  # Right wing
 
-# Pipe
-ax.fill_between(pipe_x, pipe_y, 0, color="skyblue", alpha=0.6, label="Pipe")
-ax.plot(pipe_x, pipe_y, color="blue", lw=2)
+    glColor3f(1, 1, 0)  # Yellow
+    glVertex3f(0, 1, 0)  # Nose
+    glColor3f(0, 1, 1)  # Cyan
+    glVertex3f(-0.5, -1, -0.5)  # Left tail
+    glColor3f(1, 0, 1)  # Magenta
+    glVertex3f(0.5, -1, -0.5)  # Right tail
+    glEnd()
 
-# Rubber Duck (or other character)
-duck_x = np.linspace(0, 10, 10)
-duck_y = 5 + np.sin(duck_x) * (20 - pipe_diameter) / 5 + 0.5
-ax.scatter(duck_x, duck_y, color="yellow", s=100, label="Rubber Duck 🦆")
-ax.legend()
+def draw_grid():
+    """Draw a simple grid to represent the ground."""
+    glColor3f(0.5, 0.5, 0.5)
+    for x in range(-20, 21, 1):
+        glBegin(GL_LINES)
+        glVertex3f(x, -2, -20)
+        glVertex3f(x, -2, 20)
+        glEnd()
 
-# Styling
-ax.set_xlim(0, 10)
-ax.set_ylim(0, 10)
-ax.axis("off")
-st.pyplot(fig)
+    for z in range(-20, 21, 1):
+        glBegin(GL_LINES)
+        glVertex3f(-20, -2, z)
+        glVertex3f(20, -2, z)
+        glEnd()
 
-# Funny Comments
-if fluid_speed > 10:
-    st.success("🚀 The rubber duck is zooming through the pipe!")
-elif fluid_speed > 5:
-    st.info("🐥 The rubber duck is having a good swim.")
-else:
-    st.warning("🐌 The rubber duck is barely moving... Increase the speed!")
+def update_plane():
+    """Update the plane's position and rotation based on controls."""
+    keys = pygame.key.get_pressed()
+    if keys[K_w]:
+        plane_rotation[0] += 1  # Pitch up
+    if keys[K_s]:
+        plane_rotation[0] -= 1  # Pitch down
+    if keys[K_a]:
+        plane_rotation[2] += 1  # Roll left
+    if keys[K_d]:
+        plane_rotation[2] -= 1  # Roll right
+    if keys[K_LEFT]:
+        plane_rotation[1] += 1  # Yaw left
+    if keys[K_RIGHT]:
+        plane_rotation[1] -= 1  # Yaw right
 
-# End Note
-st.markdown(
-    """
-    **Fun Fact**: This principle is why airplanes fly and why your shower curtain attacks you 
-    when you take a hot shower! Cool, right? 😉
-    """
-)
+    # Move forward in the direction the plane is facing
+    rad = math.radians(plane_rotation[1])
+    plane_position[0] += math.sin(rad) * 0.1
+    plane_position[2] += math.cos(rad) * 0.1
+
+# Main loop
+running = True
+clock = pygame.time.Clock()
+
+while running:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            running = False
+
+    # Clear screen
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    # Draw environment
+    draw_grid()
+
+    # Transform and draw plane
+    glPushMatrix()
+    glTranslatef(*plane_position)
+    glRotatef(plane_rotation[0], 1, 0, 0)  # Pitch
+    glRotatef(plane_rotation[1], 0, 1, 0)  # Yaw
+    glRotatef(plane_rotation[2], 0, 0, 1)  # Roll
+    draw_plane()
+    glPopMatrix()
+
+    # Update plane position
+    update_plane()
+
+    # Update display and cap frame rate
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
