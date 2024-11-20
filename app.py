@@ -1,6 +1,7 @@
 import streamlit as st
 import math
 import plotly.graph_objects as go
+import numpy as np
 
 # Function to calculate force or pressure based on Pascal's Principle
 def calculate_pressure(force, area):
@@ -8,6 +9,21 @@ def calculate_pressure(force, area):
 
 def calculate_force(pressure, area):
     return pressure * area
+
+# Generate 3D Cylinder using mesh3d
+def create_cylinder(x_center, y_center, z_bottom, radius, height, resolution=30, color="blue"):
+    theta = np.linspace(0, 2 * np.pi, resolution)
+    z = np.array([z_bottom, z_bottom + height])
+    x = radius * np.outer(np.cos(theta), np.ones_like(z)) + x_center
+    y = radius * np.outer(np.sin(theta), np.ones_like(z)) + y_center
+    z = np.outer(np.ones_like(theta), z)
+    return go.Mesh3d(
+        x=x.flatten(),
+        y=y.flatten(),
+        z=z.flatten(),
+        color=color,
+        opacity=0.5,
+    )
 
 # Funny object examples
 funny_examples = {
@@ -56,47 +72,27 @@ st.markdown("### 3D Visualization")
 # Create 3D plot
 fig = go.Figure()
 
-# Add pistons
-fig.add_trace(go.Cylinder(
-    x=[0, 0], y=[0, 0], z=[0, radius1 * 10],
-    radius=radius1,
-    opacity=0.5,
-    color="blue",
-    name="Small Piston"
-))
+# Add small piston
+fig.add_trace(create_cylinder(x_center=0, y_center=0, z_bottom=0, radius=radius1, height=10, color="blue"))
 
-fig.add_trace(go.Cylinder(
-    x=[10, 10], y=[0, 0], z=[0, radius2 * 10],
-    radius=radius2,
-    opacity=0.5,
-    color="red",
-    name="Large Piston"
-))
+# Add large piston
+fig.add_trace(create_cylinder(x_center=15, y_center=0, z_bottom=0, radius=radius2, height=10, color="red"))
 
 # Add objects on small piston
 for i, obj in enumerate(applied_objects):
     fig.add_trace(go.Scatter3d(
-        x=[0], y=[i * 2], z=[radius1 * 10],
+        x=[0], y=[0], z=[10 + i],
         mode='markers+text',
-        marker=dict(size=10),
+        marker=dict(size=5),
         text=obj,
         name=obj
     ))
 
-# Add force labels
-fig.add_trace(go.Scatter3d(
-    x=[0], y=[0], z=[radius1 * 10 + 2],
-    mode='text',
-    text=[f"Force: {force1} N"],
-    textposition="top center",
-    name="Force Label"
-))
-
 fig.update_layout(
     scene=dict(
-        xaxis=dict(nticks=4, range=[-5, 15]),
+        xaxis=dict(nticks=4, range=[-10, 30]),
         yaxis=dict(nticks=4, range=[-10, 10]),
-        zaxis=dict(nticks=4, range=[0, 50]),
+        zaxis=dict(nticks=4, range=[0, 30]),
     ),
     title="3D Simulation of Pascal's Principle",
 )
